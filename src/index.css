@@ -1,0 +1,287 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Component backgrounds */
+  --bg-component: #f5f5f5;
+  
+  /* Terminal colors */
+  --terminal-bg: #0b001b;
+  --terminal-surface: #08173d;
+  --terminal-glass: rgba(255, 255, 255, 0.1);
+  --terminal-border: rgba(0, 0, 0, 0.2);
+  
+  /* Terminal text colors */
+  --terminal-text-primary: #000000;
+  --terminal-text-secondary: #333333;
+  --terminal-text-accent: #666666;
+  --terminal-text-muted: #999999;
+  
+  /* Terminal accent colors */
+  --terminal-cyan: #000000;
+  --terminal-teal: #333333;
+  --terminal-blue: #666666;
+  --terminal-navy: #000000;
+  --terminal-dark: #333333;
+  --terminal-purple: #666666;
+  --terminal-pink: #000000;
+  --terminal-coral: #333333;
+  --terminal-rose: #666666;
+  --terminal-blush: #999999;
+  
+  /* Shadows and effects */
+  --terminal-glow: 0 0 20px rgba(83, 235, 228, 0.3);
+  --terminal-glow-pink: 0 0 20px rgba(193, 17, 90, 0.3);
+  --terminal-glow-coral: 0 0 20px rgba(225, 58, 106, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg-component);
+  color: #333;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Terminal-specific glass effects */
+.terminal-glass {
+  background: var(--terminal-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--terminal-border);
+  border-radius: 16px;
+}
+
+.terminal-glass-strong {
+  background: rgba(8, 23, 61, 0.4);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--terminal-border);
+  border-radius: 16px;
+}
+
+/* Component styling (no glassmorphism) */
+.component-card {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Terminal colors */
+.terminal-text-primary { color: var(--terminal-text-primary); }
+.terminal-text-secondary { color: var(--terminal-text-secondary); }
+.terminal-text-accent { color: var(--terminal-text-accent); }
+.terminal-text-muted { color: var(--terminal-text-muted); }
+
+.terminal-cyan { color: var(--terminal-cyan); }
+.terminal-teal { color: var(--terminal-teal); }
+.terminal-blue { color: var(--terminal-blue); }
+.terminal-navy { color: var(--terminal-navy); }
+.terminal-dark { color: var(--terminal-dark); }
+.terminal-purple { color: var(--terminal-purple); }
+.terminal-pink { color: var(--terminal-pink); }
+.terminal-coral { color: var(--terminal-coral); }
+.terminal-rose { color: var(--terminal-rose); }
+.terminal-blush { color: var(--terminal-blush); }
+
+.terminal-glow { box-shadow: var(--terminal-glow); }
+.terminal-glow-pink { box-shadow: var(--terminal-glow-pink); }
+.terminal-glow-coral { box-shadow: var(--terminal-glow-coral); }
+
+.terminal-window {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.terminal-titlebar {
+  background: rgba(255, 255, 255, 0.2);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 16px 16px 0 0;
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Terminal Command Animations */
+.terminal-line-enter {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.terminal-line-exit {
+  animation: slideOutRight 0.3s ease-in forwards;
+}
+
+.terminal-command-enter {
+  animation: typeIn 0.5s ease-out;
+}
+
+.terminal-output-enter {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes typeIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Page Transition Animations */
+.page-enter {
+  animation: pageSlideInRight 0.6s ease-out;
+}
+
+.page-exit {
+  animation: pageSlideOutLeft 0.4s ease-in forwards;
+}
+
+.page-enter-demo {
+  animation: pageZoomIn 0.8s ease-out;
+}
+
+.page-exit-demo {
+  animation: pageZoomOut 0.5s ease-in forwards;
+}
+
+.page-enter-about {
+  animation: pageFadeInUp 0.7s ease-out;
+}
+
+.page-exit-about {
+  animation: pageFadeOutDown 0.4s ease-in forwards;
+}
+
+@keyframes pageSlideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pageSlideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+@keyframes pageZoomIn {
+  from {
+    transform: scale(0.3) rotate(-10deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes pageZoomOut {
+  from {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.3) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pageFadeInUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pageFadeOutDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+}
+
+/* Disable animations when class is present */
+.no-animations .terminal-line-enter,
+.no-animations .terminal-line-exit,
+.no-animations .terminal-command-enter,
+.no-animations .terminal-output-enter,
+.no-animations .page-enter,
+.no-animations .page-exit,
+.no-animations .page-enter-demo,
+.no-animations .page-exit-demo,
+.no-animations .page-enter-about,
+.no-animations .page-exit-about {
+  animation: none !important;
+}
