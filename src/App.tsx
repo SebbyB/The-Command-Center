@@ -44,10 +44,10 @@ function App() {
         />
       </div>
       
-      {/* Terminal at Bottom - With transparency to show content behind */}
+      {/* Terminal at Bottom - Fixed position to stay in place during scroll */}
       <div 
         style={{
-          position: 'absolute',
+          position: 'fixed',
           bottom: '0px',
           left: '0px',
           right: '0px',
@@ -57,7 +57,8 @@ function App() {
           border: '1px solid rgba(0, 0, 0, 0.2)',
           borderRadius: '16px 16px 0 0',
           transition: 'height 0.3s ease-in-out',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          zIndex: 1000
         }}
       >
         {/* Terminal Header */}
