@@ -34,6 +34,7 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
   const [exitingLines, setExitingLines] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const welcomeShown = useRef(false);
 
   const addLine = (content: string, type: TerminalLine['type'] = 'output') => {
     setHistory(prev => [
@@ -125,6 +126,8 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
   }, [history]);
 
   useEffect(() => {
+    if (welcomeShown.current) return;
+    welcomeShown.current = true;
     addLine('Welcome!');
     addLine('Type "help" to see available commands.');
     addLine('');
@@ -172,7 +175,7 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
           className="bg-transparent border-none outline-none terminal-text-primary ml-2 flex-1"
           autoFocus
         />
-        <span className="terminal-text-primary cursor-blink">|</span>
+        <span className="terminal-text-primary"></span>
         {animationsEnabled && (
           <span className="text-xs text-[#21FA90] ml-2">⏱</span>
         )}
