@@ -1,121 +1,115 @@
-import React, { useState } from 'react';
-import Viewport from './components/Viewport';
+import { useState } from 'react';
 import Terminal from './components/Terminal';
+import filesystem from './filesystem';
+import type { VirtualDirectory } from './filesystem';
+import NavigationContext from './context/navigation';
+
+function resolveDir(path: string[]): VirtualDirectory {
+  let node: VirtualDirectory = filesystem;
+  for (const segment of path) {
+    const child = node.children[segment];
+    if (!child || child.type !== 'directory') return filesystem;
+    node = child;
+  }
+  return node;
+}
 
 function App() {
-  const [currentSection, setCurrentSection] = useState('');
-  const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
-  const [pageAnimations, setPageAnimations] = useState(true);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [exitingSection, setExitingSection] = useState('');
+  const [currentPath, setCurrentPath] = useState<string[]>([]);
+  const [isMinimized, setIsMinimized] = useState(false);
 
-  const handleNavigate = (section: string, animationsEnabled: boolean = true) => {
-    if (!animationsEnabled || !pageAnimations) {
-      setCurrentSection(section);
-      return;
-    }
+  const currentDir = resolveDir(currentPath);
+  const SectionComponent = currentDir.component ?? null;
 
-    if (currentSection !== section) {
-      setIsTransitioning(true);
-      setExitingSection(currentSection);
-      
-      // Wait for exit animation to complete
-      setTimeout(() => {
-        setCurrentSection(section);
-        setExitingSection('');
-        setIsTransitioning(false);
-      }, 400); // Match exit animation duration
-    }
-  };
-
-  const toggleTerminalMinimize = () => {
-    setIsTerminalMinimized(!isTerminalMinimized);
-  };
 
   return (
-    <div className="h-screen relative">
-      {/* Main Viewport - Extends full height including under terminal */}
-      <div className="absolute inset-0 overflow-hidden">
-        <Viewport 
-          currentSection={currentSection}
-          exitingSection={exitingSection}
-          isTransitioning={isTransitioning}
-          pageAnimations={pageAnimations}
-        />
-      </div>
-      
-      {/* Terminal at Bottom - Fixed position to stay in place during scroll */}
-      <div 
+    <div className="h-screen flex flex-col" style={{ background: 'var(--terminal-bg)' }}>
+      {/* Viewport */}
+      <NavigationContext.Provider value={{ currentPath, currentDir, onNavigate: setCurrentPath }}>
+        <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', position: 'relative' }}>
+          {currentPath.length > 0 && (
+            <button
+              onClick={() => setCurrentPath(p => p.slice(0, -1))}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                left: '1rem',
+                zIndex: 10,
+                background: 'none',
+                border: 'none',
+                color: 'var(--terminal-teal)',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: '1.2rem',
+                padding: '4px 8px',
+                lineHeight: 1,
+              }}
+              title="cd .."
+            >
+              ←
+            </button>
+          )}
+          {SectionComponent && <SectionComponent />}
+
+        </div>
+      </NavigationContext.Provider>
+
+      {/* Terminal panel */}
+      <div
         style={{
-          position: 'fixed',
-          bottom: '0px',
-          left: '0px',
-          right: '0px',
-          height: isTerminalMinimized ? '60px' : '400px',
-          background: 'rgba(255, 255, 255, 0.3)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(0, 0, 0, 0.2)',
-          borderRadius: '16px 16px 0 0',
-          transition: 'height 0.3s ease-in-out',
-          overflow: 'hidden',
-          zIndex: 1000
+          height: isMinimized ? '40px' : '40vh',
+          minHeight: isMinimized ? '40px' : '200px',
+          borderTop: '1px solid rgba(33, 250, 144, 0.25)',
+          transition: 'height 0.25s ease, min-height 0.25s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'var(--terminal-bg)',
+          flexShrink: 0,
         }}
       >
-        {/* Terminal Header */}
-        <div 
+        {/* Title bar */}
+        <div
           style={{
-            height: '60px',
-            borderBottom: isTerminalMinimized ? 'none' : '1px solid rgba(0, 0, 0, 0.1)',
+            height: '40px',
+            minHeight: '40px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '0 20px',
-            background: 'rgba(255, 255, 255, 0.1)'
+            padding: '0 16px',
+            borderBottom: isMinimized ? 'none' : '1px solid rgba(33, 250, 144, 0.15)',
           }}
         >
-          <div style={{ color: '#333', fontFamily: 'JetBrains Mono, monospace', fontSize: '14px' }}>
-            Terminal {isTerminalMinimized && '(Minimized)'}
-          </div>
+          <span style={{ color: 'var(--terminal-cyan)', fontSize: '13px' }}>
+            terminal
+          </span>
           <button
-            onClick={toggleTerminalMinimize}
+            onClick={() => setIsMinimized(v => !v)}
             style={{
-              background: 'rgba(0, 0, 0, 0.1)',
-              border: '1px solid rgba(0, 0, 0, 0.2)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              color: '#333',
-              fontSize: '12px',
+              background: 'none',
+              border: 'none',
+              color: 'var(--terminal-teal)',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              fontFamily: 'JetBrains Mono, monospace'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.2)';
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.1)';
-              e.currentTarget.style.transform = 'scale(1)';
+              fontSize: '13px',
+              fontFamily: 'inherit',
+              padding: '2px 6px',
             }}
           >
-            {isTerminalMinimized ? '▲ Expand' : '▼ Minimize'}
+            {isMinimized ? '▲' : '▼'}
           </button>
         </div>
 
-        {/* Terminal Content */}
-        {!isTerminalMinimized && (
-          <div style={{ height: 'calc(100% - 60px)', padding: '16px' }}>
-            <Terminal 
-              onNavigate={handleNavigate} 
-              currentSection={currentSection}
-              pageAnimations={pageAnimations}
-              setPageAnimations={setPageAnimations}
+        {/* Terminal content */}
+        {!isMinimized && (
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <Terminal
+              currentPath={currentPath}
+              onNavigate={setCurrentPath}
             />
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
