@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Backgrounds */
@@ -79,18 +79,24 @@ body {
   51%, 100%{ opacity: 0; }
 }
 
-/* Terminal line animations */
-.terminal-line-enter {
-  animation: slideInLeft 0.3s ease-out;
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--terminal-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--terminal-navy);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--terminal-cyan);
 }
 
+/* Terminal line animations */
 .terminal-line-exit {
   animation: slideOutRight 0.3s ease-in forwards;
-}
-
-@keyframes slideInLeft {
-  from { transform: translateX(-20px); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
 }
 
 @keyframes slideOutRight {
@@ -99,7 +105,63 @@ body {
 }
 
 /* Disable animations */
-.no-animations .terminal-line-enter,
 .no-animations .terminal-line-exit {
   animation: none !important;
+}
+
+/* Page HTML content rendering */
+.page-content a {
+  color: var(--terminal-teal);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.page-content a:hover {
+  color: var(--terminal-cyan);
+}
+
+.page-content img {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.page-content code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  background: rgba(33, 250, 144, 0.08);
+  color: var(--terminal-cyan);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+.page-content pre {
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-border);
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+.page-content pre code {
+  background: none;
+  padding: 0;
+  color: var(--terminal-text-secondary);
+  font-size: 0.875rem;
+}
+
+.page-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.75rem 0;
+}
+.page-content th,
+.page-content td {
+  border: 1px solid var(--terminal-border);
+  padding: 0.4rem 0.75rem;
+  text-align: left;
+}
+.page-content th {
+  color: var(--terminal-cyan);
+  background: rgba(33, 250, 144, 0.05);
 }

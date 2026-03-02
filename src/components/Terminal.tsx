@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import commands from '../commands';
 import type { CommandContext } from '../commands';
 import filesystem from '../filesystem';
@@ -25,6 +25,32 @@ function resolveDir(path: string[]): VirtualDirectory {
   return node;
 }
 
+const CHAR_SPEED_MS = 8;
+
+const TypewriterLine = memo(({ content, animate, delay }: {
+  content: string;
+  animate: boolean;
+  delay: number;
+}) => {
+  const [displayed, setDisplayed] = useState(() => (animate && content) ? '' : content);
+
+  useEffect(() => {
+    if (!animate || !content) return;
+    let i = 0;
+    let iv: ReturnType<typeof setInterval>;
+    const t = setTimeout(() => {
+      iv = setInterval(() => {
+        setDisplayed(content.slice(0, ++i));
+        if (i >= content.length) clearInterval(iv);
+      }, CHAR_SPEED_MS);
+    }, delay);
+    return () => { clearTimeout(t); clearInterval(iv); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <>{displayed || '\u00a0'}</>;
+});
+
 const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
   const [history, setHistory] = useState<TerminalLine[]>([]);
   const [currentInput, setCurrentInput] = useState('');
@@ -35,6 +61,8 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const welcomeShown = useRef(false);
+  const batchStartRef = useRef(-1);
+  const executeCommandRef = useRef<(raw: string) => void>(() => {});
 
   const addLine = (content: string, type: TerminalLine['type'] = 'output') => {
     setHistory(prev => [
@@ -67,6 +95,7 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
     const trimmed = raw.trim();
     const [cmd, ...args] = trimmed.toLowerCase().split(' ');
 
+    batchStartRef.current = history.length;
     addLine(`$ ${raw}`, 'command');
     if (!cmd) return;
 
@@ -90,6 +119,8 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
 
     handler.execute(ctx);
   };
+
+  executeCommandRef.current = executeCommand;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -133,6 +164,15 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
     addLine('');
   }, []);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const cmd = (e as CustomEvent<{ command: string }>).detail?.command;
+      if (cmd?.trim()) executeCommandRef.current(cmd);
+    };
+    window.addEventListener('terminal:execute', handler);
+    return () => window.removeEventListener('terminal:execute', handler);
+  }, []);
+
   const currentPathStr = currentPath.length === 0 ? '~' : `~/${currentPath.join('/')}`;
 
   return (
@@ -143,9 +183,7 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
     >
       {history.map((line, index) => {
         const isExiting = exitingLines.has(line.id);
-        const animationClass = animationsEnabled
-          ? isExiting ? 'terminal-line-exit' : 'terminal-line-enter'
-          : '';
+        const animationClass = animationsEnabled && isExiting ? 'terminal-line-exit' : '';
 
         return (
           <div
@@ -155,9 +193,12 @@ const Terminal: React.FC<TerminalProps> = ({ currentPath, onNavigate }) => {
               line.type === 'error'   ? 'terminal-pink' :
               'terminal-text-primary'
             }`}
-            style={{ animationDelay: animationsEnabled && !isExiting ? `${index * 0.05}s` : '0s' }}
           >
-            {line.content}
+            <TypewriterLine
+              content={line.content}
+              animate={animationsEnabled && !isExiting && line.type !== 'command'}
+              delay={Math.max(0, index - batchStartRef.current - 1) * 30}
+            />
           </div>
         );
       })}

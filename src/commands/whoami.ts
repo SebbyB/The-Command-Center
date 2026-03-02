@@ -3,8 +3,8 @@ import type { Command } from './types';
 const whoami: Command = {
   description: 'Display user information',
   execute: ({ addLine }) => {
-    addLine('Full Stack Developer');
-    addLine('Passionate about creating amazing web experiences');
+    addLine('The Command Center');
+    addLine('A framework for quickly and easily creating and navigating a website.');
   },
 };
 

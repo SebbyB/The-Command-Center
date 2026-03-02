@@ -1,9 +1,20 @@
 RewriteEngine On
 
-# Handle client-side routing
+# === MAINTENANCE MODE ===
+# To enable: uncomment the three lines below and upload this file.
+# To disable: comment them out again and upload.
+# RewriteCond %{REQUEST_URI} !^/under-construction\.html$
+# RewriteCond %{REQUEST_URI} !^/assets/
+# RewriteRule ^ /index.html [R=302,L]
+# === END MAINTENANCE MODE ===
+
+# Handle client-side routing — serve index.html for all non-file/non-dir requests
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
+
+# Serve index.html for Apache-level 404s (catches edge cases)
+ErrorDocument 404 /index.html
 
 # Enable compression
 <IfModule mod_deflate.c>

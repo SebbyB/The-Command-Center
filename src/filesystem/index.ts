@@ -1,40 +1,42 @@
 import type { VirtualDirectory } from './types';
-import { projectDirectories } from './projects';
 import Home from '../sections/Home';
-import Projects from '../sections/Projects';
+import ExternalMdExample from '../sections/ExternalMdExample';
+import { externalMdExampleDirectories } from './external-md-example';
+import ExamplePages from '../sections/ExamplePages';
+import { examplePagesDirectories } from './example-pages';
+import Docs from '../sections/Docs';
+import { docsDirectories } from './docs';
 import Page from '../sections/Page';
-import aboutContent from './files/about';
-import skillsContent from './files/skills';
+import { readme as theCommandCenterReadme } from './the-command-center';
 
 const filesystem: VirtualDirectory = {
   type: 'directory',
   component: Home,
   children: {
-    'about.txt':   { type: 'file', content: aboutContent },
-    'skills.json': { type: 'file', content: skillsContent },
-    projects: {
+    'external-md-example': {
       type: 'directory',
-      component: Projects,
-      description: 'A collection of things I have built.',
-      children: projectDirectories,
+      component: ExternalMdExample,
+      description: '',
+      children: externalMdExampleDirectories,
     },
-    experience: {
+    'example-pages': {
+      type: 'directory',
+      component: ExamplePages,
+      description: '',
+      children: examplePagesDirectories,
+    },
+    'docs': {
+      type: 'directory',
+      component: Docs,
+      description: '',
+      children: docsDirectories,
+    },
+    'the-command-center': {
       type: 'directory',
       component: Page,
-      description: 'Where I have worked and what I have done.',
-      children: {},
-    },
-    education: {
-      type: 'directory',
-      component: Page,
-      description: 'Academic background and certifications.',
-      children: {},
-    },
-    contact: {
-      type: 'directory',
-      component: Page,
-      description: 'Get in touch.',
-      children: {},
+      children: {
+        'README.md': { type: 'file', content: theCommandCenterReadme },
+      },
     },
   },
 };

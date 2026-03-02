@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Terminal from './components/Terminal';
 import filesystem from './filesystem';
 import type { VirtualDirectory } from './filesystem';
 import NavigationContext from './context/navigation';
+import NotFound from './sections/NotFound';
+import UnderConstruction from './sections/UnderConstruction';
+
+const UNDER_CONSTRUCTION = import.meta.env.VITE_UNDER_CONSTRUCTION === 'true';
 
 function resolveDir(path: string[]): VirtualDirectory {
   let node: VirtualDirectory = filesystem;
@@ -17,19 +21,56 @@ function resolveDir(path: string[]): VirtualDirectory {
 function App() {
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+
+  // Resolve URL path to virtual filesystem on first load
+  useEffect(() => {
+    const pathname = window.location.pathname;
+    if (pathname === '/' || pathname === '') return;
+
+    const segments = pathname.replace(/^\/+/, '').split('/').filter(Boolean);
+    let node = filesystem as import('./filesystem').VirtualNode;
+    for (const segment of segments) {
+      if (node.type !== 'directory' || !(segment in node.children)) {
+        setNotFound(true);
+        return;
+      }
+      node = node.children[segment];
+    }
+    if (node.type === 'directory') {
+      setCurrentPath(segments);
+    }
+  }, []);
 
   const currentDir = resolveDir(currentPath);
   const SectionComponent = currentDir.component ?? null;
 
+  function navigate(path: string[]) {
+    setNotFound(false);
+    setCurrentPath(path);
+  }
+
+
+  if (UNDER_CONSTRUCTION) {
+    return (
+      <div className="h-screen flex flex-col" style={{ background: 'var(--terminal-bg)' }}>
+        <NavigationContext.Provider value={{ currentPath: [], currentDir: filesystem, onNavigate: () => {} }}>
+          <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+            <UnderConstruction />
+          </div>
+        </NavigationContext.Provider>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col" style={{ background: 'var(--terminal-bg)' }}>
       {/* Viewport */}
-      <NavigationContext.Provider value={{ currentPath, currentDir, onNavigate: setCurrentPath }}>
+      <NavigationContext.Provider value={{ currentPath, currentDir, onNavigate: navigate }}>
         <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', position: 'relative' }}>
-          {currentPath.length > 0 && (
+          {currentPath.length > 0 && !notFound && (
             <button
-              onClick={() => setCurrentPath(p => p.slice(0, -1))}
+              onClick={() => navigate(currentPath.slice(0, -1))}
               style={{
                 position: 'absolute',
                 top: '1rem',
@@ -49,8 +90,10 @@ function App() {
               ←
             </button>
           )}
-          {SectionComponent && <SectionComponent />}
-
+          {notFound
+            ? <NotFound />
+            : SectionComponent && <SectionComponent />
+          }
         </div>
       </NavigationContext.Provider>
 
@@ -103,7 +146,7 @@ function App() {
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <Terminal
               currentPath={currentPath}
-              onNavigate={setCurrentPath}
+              onNavigate={navigate}
             />
           </div>
         )}

@@ -1,5 +1,5 @@
 {
-  "name": "portfolio-site",
+  "name": "command-center",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,12 +11,14 @@
     "build:cpanel": "npm run build && cp .htaccess dist/"
   },
   "dependencies": {
+    "marked": "^17.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@tailwindcss/postcss": "^4.1.10",
+    "@types/marked": "^5.0.2",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",

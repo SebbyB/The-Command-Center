@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigation } from '../context/navigation';
 import { pageMap } from '../filesystem/pageRegistry';
+import SectionLayout from '../components/SectionLayout';
 
 const Page: React.FC = () => {
   const { currentPath } = useNavigation();
@@ -16,8 +17,7 @@ const Page: React.FC = () => {
   }
 
   return (
-    <div className="font-mono" style={{ background: 'var(--terminal-bg)', padding: '4rem 2rem 2rem' }}>
-      <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
+    <SectionLayout withBackground>
 
         {/* Hero */}
         <div style={{ marginBottom: '2.5rem' }}>
@@ -92,12 +92,11 @@ const Page: React.FC = () => {
               <h2 className="terminal-cyan" style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem' }}>
                 # {section.title}
               </h2>
-              <p
-                className="terminal-text-secondary"
-                style={{ fontSize: '0.9rem', lineHeight: 1.8, whiteSpace: 'pre-line', marginBottom: section.image ? '1.25rem' : 0 }}
-              >
-                {section.body}
-              </p>
+              <div
+                className="terminal-text-secondary page-content"
+                style={{ fontSize: '0.9rem', lineHeight: 1.8, marginBottom: section.image ? '1.25rem' : 0 }}
+                dangerouslySetInnerHTML={{ __html: section.body }}
+              />
               {section.image && (
                 <img
                   src={section.image}
@@ -109,8 +108,7 @@ const Page: React.FC = () => {
           ))}
         </div>
 
-      </div>
-    </div>
+    </SectionLayout>
   );
 };
 

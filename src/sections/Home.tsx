@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigation } from '../context/navigation';
 import type { VirtualDirectory } from '../filesystem/types';
+import { cardHoverHandlers } from '../utils/hoverHandlers';
+import SectionLayout from '../components/SectionLayout';
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--terminal-surface)',
@@ -22,8 +24,7 @@ const Home: React.FC = () => {
   ) as [string, VirtualDirectory][];
 
   return (
-    <div className="font-mono" style={{ padding: '4rem 2rem 2rem' }}>
-      <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
+    <SectionLayout>
         <div style={{ marginBottom: '2.5rem' }}>
           <h1 className="terminal-cyan" style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>
             ~
@@ -39,14 +40,7 @@ const Home: React.FC = () => {
               key={name}
               style={cardStyle}
               onClick={() => onNavigate([name])}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(33, 250, 144, 0.6)';
-                e.currentTarget.style.background = 'var(--terminal-navy)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'rgba(33, 250, 144, 0.2)';
-                e.currentTarget.style.background = 'var(--terminal-surface)';
-              }}
+              {...cardHoverHandlers}
             >
               <div className="terminal-cyan" style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem' }}>
                 {name}/
@@ -59,8 +53,7 @@ const Home: React.FC = () => {
             </button>
           ))}
         </div>
-      </div>
-    </div>
+    </SectionLayout>
   );
 };
 
