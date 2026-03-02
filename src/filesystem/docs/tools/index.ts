@@ -11,6 +11,7 @@ import { readme as removeFileReadme } from './remove-file';
 import { readme as treeReadme } from './tree';
 import { readme as whoamiReadme } from './whoami';
 import { readme as mdToPageReadme } from './md-to-page';
+import { readme as toggleDirectoryReadme } from './toggle-directory';
 
 export { default as docsToolsList } from './data';
 
@@ -90,6 +91,13 @@ export const docsToolsDirectories: Record<string, VirtualDirectory> = {
     component: Page,
     children: {
       'README.md': { type: 'file', content: mdToPageReadme },
+    },
+  },
+  'toggle-directory': {
+    type: 'directory',
+    component: Page,
+    children: {
+      'README.md': { type: 'file', content: toggleDirectoryReadme },
     },
   },
 };

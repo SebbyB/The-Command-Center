@@ -34,7 +34,7 @@ export const meta: PageMeta = {
 <tr>
 <td><code>--path</code></td>
 <td>yes</td>
-<td>Directory to add the entry under. Supports nested paths (e.g. <code>projects</code>, <code>docs/tools</code>).</td>
+<td>Directory to add the entry under. Use <code>/</code> or <code>~</code> for the root (<code>~/</code>). Supports nested paths (e.g. <code>projects</code>, <code>docs/tools</code>).</td>
 </tr>
 <tr>
 <td><code>--dry-run</code></td>
@@ -47,25 +47,23 @@ export const meta: PageMeta = {
     {
       title: 'Markdown Format',
       body: `<p>The file must open with a YAML frontmatter block delimited by <code>---</code>, followed by optional <code>##</code> sections whose content becomes the page body.</p>
-<h2>\`\`\`markdown</h2>
-<p>name: my-project
+<pre><code class="language-markdown">---
+name: my-project
 description: A short one-line description.
 tech: React, TypeScript, Vite
 repo: https://github.com/you/my-project
-live: https://my-project.example.com</p>
-<hr>`,
-    },
-    {
-      title: 'Overview',
-      body: '<p>What the project does.</p>',
-    },
-    {
-      title: 'Features',
-      body: `<ul>
-<li>Feature one</li>
-<li>Feature two
-\`\`\`</li>
-</ul>
+live: https://my-project.example.com
+---
+
+## Overview
+
+What the project does.
+
+## Features
+
+- Feature one
+- Feature two
+</code></pre>
 <p><strong>Frontmatter fields:</strong></p>
 <table>
 <thead>
@@ -106,16 +104,22 @@ live: https://my-project.example.com</p>
     },
     {
       title: 'What Gets Written',
-      body: `<ul>
-<li><code>src/filesystem/&lt;path&gt;/&lt;slug&gt;.ts</code> — TypeScript page entry with <code>meta</code> and <code>readme</code> exports</li>
-<li><code>src/filesystem/&lt;path&gt;/data.ts</code> — updated to import and include the new entry</li>
-<li><code>src/filesystem/&lt;path&gt;/index.ts</code> — updated with the directory entry and README</li>
-</ul>`,
+      body: `<p><strong>Section or subdirectory</strong> (<code>--path &lt;section&gt;</code> or <code>--path &lt;section/subdir&gt;</code>):
+- <code>src/filesystem/&lt;path&gt;/&lt;slug&gt;.ts</code> — TypeScript page entry with <code>meta</code> and <code>readme</code> exports
+- <code>src/filesystem/&lt;path&gt;/data.ts</code> — updated to import and include the new entry
+- <code>src/filesystem/&lt;path&gt;/index.ts</code> — updated with the directory entry and README</p>
+<p><strong>Root</strong> (<code>--path /</code>):
+- <code>src/filesystem/&lt;slug&gt;.ts</code> — TypeScript page entry
+- <code>src/filesystem/index.ts</code> — updated with the directory entry
+- <code>src/filesystem/pageRegistry.ts</code> — updated with the meta import</p>`,
     },
     {
       title: 'Examples',
       body: `<pre><code class="language-bash">python tools/md_to_page.py my-project.md --path projects
 python tools/md_to_page.py acme-job.md --path experience --dry-run
+
+# Root home directory
+python tools/md_to_page.py README.md --path /
 
 # Nested subdirectory (docs/tools must exist — create with add_directory.py first)
 python tools/md_to_page.py tree.md --path docs/tools

@@ -34,7 +34,7 @@ export const meta: PageMeta = {
 <tr>
 <td><code>--path</code></td>
 <td>yes</td>
-<td>Directory the page was added under. Supports nested paths (e.g. <code>projects</code>, <code>docs/tools</code>).</td>
+<td>Directory the page was added under. Use <code>/</code> or <code>~</code> for root (<code>~/</code>). Supports nested paths (e.g. <code>projects</code>, <code>docs/tools</code>).</td>
 </tr>
 <tr>
 <td><code>--dry-run</code></td>
@@ -51,17 +51,23 @@ export const meta: PageMeta = {
     },
     {
       title: 'What Gets Removed',
-      body: `<ul>
-<li><code>src/filesystem/&lt;path&gt;/&lt;slug&gt;.ts</code> — deleted</li>
-<li><code>src/filesystem/&lt;path&gt;/data.ts</code> — import and array entry removed</li>
-<li><code>src/filesystem/&lt;path&gt;/index.ts</code> — import and directory entry block removed</li>
-</ul>`,
+      body: `<p><strong>Section or subdirectory</strong> (<code>--path &lt;section&gt;</code> or <code>--path &lt;section/subdir&gt;</code>):
+- <code>src/filesystem/&lt;path&gt;/&lt;slug&gt;.ts</code> — deleted
+- <code>src/filesystem/&lt;path&gt;/data.ts</code> — import and array entry removed
+- <code>src/filesystem/&lt;path&gt;/index.ts</code> — import and directory entry block removed</p>
+<p><strong>Root</strong> (<code>--path /</code>):
+- <code>src/filesystem/&lt;slug&gt;.ts</code> — deleted
+- <code>src/filesystem/index.ts</code> — import and entry block removed
+- <code>src/filesystem/pageRegistry.ts</code> — meta import and entry removed</p>`,
     },
     {
       title: 'Examples',
       body: `<pre><code class="language-bash">python tools/remove_page.py my-project --path projects
 python tools/remove_page.py acme-job --path experience --dry-run
 python tools/remove_page.py old-entry --path blog --tree
+
+# Root home directory
+python tools/remove_page.py readme --path /
 
 # Nested subdirectory
 python tools/remove_page.py tree --path docs/tools
@@ -70,8 +76,7 @@ python tools/remove_page.py tree --path docs/tools
     {
       title: 'Notes',
       body: `<ul>
-<li>Errors out if the section directory does not exist.</li>
-<li>Errors out if <code>&lt;slug&gt;.ts</code> is not found in the section.</li>
+<li>Errors out if <code>&lt;slug&gt;.ts</code> is not found.</li>
 <li>Entries not found in <code>data.ts</code> or <code>index.ts</code> are skipped with a warning rather than failing.</li>
 <li>After removing, run <code>npm run lint</code> to verify.</li>
 </ul>`,

@@ -34,7 +34,7 @@ export const meta: PageMeta = {
 <tr>
 <td><code>--path</code></td>
 <td>yes</td>
-<td>Directory to add the page under. Supports nested paths (e.g. <code>projects</code>, <code>docs/tools</code>).</td>
+<td>Directory to add the page under. Use <code>/</code> or <code>~</code> for root (<code>~/</code>). Supports nested paths (e.g. <code>projects</code>, <code>docs/tools</code>).</td>
 </tr>
 <tr>
 <td><code>--description</code></td>
@@ -56,11 +56,14 @@ export const meta: PageMeta = {
     },
     {
       title: 'What Gets Written',
-      body: `<ul>
-<li><code>src/filesystem/&lt;path&gt;/&lt;name&gt;.ts</code> — stub with empty <code>meta</code> and <code>readme</code> exports</li>
-<li><code>src/filesystem/&lt;path&gt;/data.ts</code> — updated to import and include the new entry</li>
-<li><code>src/filesystem/&lt;path&gt;/index.ts</code> — updated with the directory entry and README</li>
-</ul>`,
+      body: `<p><strong>Section or subdirectory</strong> (<code>--path &lt;section&gt;</code> or <code>--path &lt;section/subdir&gt;</code>):
+- <code>src/filesystem/&lt;path&gt;/&lt;name&gt;.ts</code> — stub with empty <code>meta</code> and <code>readme</code> exports
+- <code>src/filesystem/&lt;path&gt;/data.ts</code> — updated to import and include the new entry
+- <code>src/filesystem/&lt;path&gt;/index.ts</code> — updated with the directory entry and README</p>
+<p><strong>Root</strong> (<code>--path /</code>):
+- <code>src/filesystem/&lt;name&gt;.ts</code> — stub page entry
+- <code>src/filesystem/index.ts</code> — updated with the directory entry
+- <code>src/filesystem/pageRegistry.ts</code> — updated with the meta import</p>`,
     },
     {
       title: 'Examples',
@@ -68,6 +71,9 @@ export const meta: PageMeta = {
 python tools/add_page.py blog-post --path blog --description &quot;First post&quot;
 python tools/add_page.py wip-page --path projects --dry-run
 python tools/add_page.py new-entry --path experience --tree
+
+# Root home directory
+python tools/add_page.py readme --path /
 
 # Nested subdirectory (docs/tools must exist — create with add_directory.py first)
 python tools/add_page.py tree --path docs/tools

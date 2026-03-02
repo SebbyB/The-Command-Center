@@ -10,6 +10,7 @@ import { meta as removeFileMeta } from './remove-file';
 import { meta as treeMeta } from './tree';
 import { meta as whoamiMeta } from './whoami';
 import { meta as mdToPageMeta } from './md-to-page';
+import { meta as toggleDirectoryMeta } from './toggle-directory';
 
 const docsToolsList: PageMeta[] = [
   addCommandMeta,
@@ -23,6 +24,7 @@ const docsToolsList: PageMeta[] = [
   treeMeta,
   whoamiMeta,
   mdToPageMeta,
+  toggleDirectoryMeta,
 ];
 
 export default docsToolsList;

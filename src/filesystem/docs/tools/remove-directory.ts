@@ -7,7 +7,8 @@ export const meta: PageMeta = {
   sections: [
     {
       title: 'Overview',
-      body: '<p><code>remove_directory.py</code> reverses what <code>add_directory.py</code> did. Without <code>--path</code> it removes a top-level section: deletes the entire folder, the React component, and all wiring. With <code>--path</code> it removes a subdirectory: cleans the parent <code>index.ts</code> and <code>pageRegistry.ts</code> and deletes the folder — no <code>.tsx</code> file is touched.</p><p>In both modes the tool recursively walks the target directory before deleting it, removing every <code>pageRegistry.ts</code> entry for every nested <code>data.ts</code> it finds. This means you can remove a parent directory in one command even if it contains registered subdirectories — no need to remove children bottom-up first.</p>',
+      body: `<p><code>remove_directory.py</code> reverses what <code>add_directory.py</code> did. Without <code>--path</code> it removes a top-level section: deletes the entire folder, the React component, and all wiring. With <code>--path</code> it removes a subdirectory: cleans the parent <code>index.ts</code> and <code>pageRegistry.ts</code> and deletes the folder — no <code>.tsx</code> file is touched.</p>
+<p>In both modes the tool recursively walks the target directory before deleting it, removing every <code>pageRegistry.ts</code> entry for every nested <code>data.ts</code> it finds. This means you can remove a parent directory in one command even if it contains registered subdirectories — no need to remove children bottom-up first.</p>`,
     },
     {
       title: 'Usage',

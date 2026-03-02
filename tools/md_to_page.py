@@ -145,15 +145,43 @@ def _collect_references(body: str) -> str:
 
 def _parse_sections(body: str) -> list[dict]:
     refs_block = _collect_references(body)
-    parts = re.split(r"^## (.+)$", body.strip(), flags=re.MULTILINE)
-    sections = []
-    for i in range(1, len(parts), 2):
-        title = parts[i].strip()
-        raw_content = parts[i + 1].strip() if i + 1 < len(parts) else ""
-        if refs_block and raw_content:
-            raw_content = raw_content + "\n\n" + refs_block
-        html_content = md_to_html(raw_content) if raw_content else ""
-        sections.append({"title": title, "body": html_content})
+    # Split on ## headings only outside fenced code blocks.
+    # A naive re.split would treat ## lines inside ```...``` as dividers.
+    sections: list[dict] = []
+    current_title: str | None = None
+    current_lines: list[str] = []
+    in_fence = False
+    fence_marker = ""
+
+    for line in body.strip().splitlines():
+        fence_match = re.match(r"^(```|~~~)", line)
+        if fence_match:
+            marker = fence_match.group(1)
+            if not in_fence:
+                in_fence = True
+                fence_marker = marker
+            elif line.startswith(fence_marker):
+                in_fence = False
+                fence_marker = ""
+
+        heading = re.match(r"^## (.+)$", line) if not in_fence else None
+        if heading:
+            if current_title is not None:
+                raw = "\n".join(current_lines).strip()
+                if refs_block and raw:
+                    raw = raw + "\n\n" + refs_block
+                sections.append({"title": current_title, "body": md_to_html(raw) if raw else ""})
+            current_title = heading.group(1).strip()
+            current_lines = []
+        else:
+            current_lines.append(line)
+
+    if current_title is not None:
+        raw = "\n".join(current_lines).strip()
+        if refs_block and raw:
+            raw = raw + "\n\n" + refs_block
+        sections.append({"title": current_title, "body": md_to_html(raw) if raw else ""})
+
     return sections
 
 # ---------------------------------------------------------------------------

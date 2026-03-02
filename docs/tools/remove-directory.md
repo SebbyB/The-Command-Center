@@ -8,6 +8,8 @@ tech: Python
 
 `remove_directory.py` reverses what `add_directory.py` did. Without `--path` it removes a top-level section: deletes the entire folder, the React component, and all wiring. With `--path` it removes a subdirectory: cleans the parent `index.ts` and `pageRegistry.ts` and deletes the folder — no `.tsx` file is touched.
 
+In both modes the tool recursively walks the target directory before deleting it, removing every `pageRegistry.ts` entry for every nested `data.ts` it finds. This means you can remove a parent directory in one command even if it contains registered subdirectories — no need to remove children bottom-up first.
+
 ## Usage
 
 ```
@@ -36,7 +38,7 @@ Run from the project root.
 | `src/filesystem/<name>/` | Deleted (entire directory with all contents) |
 | `src/sections/<Name>.tsx` | Deleted |
 | `src/filesystem/index.ts` | Import lines and children entry block removed |
-| `src/filesystem/pageRegistry.ts` | Import line and spread entry removed |
+| `src/filesystem/pageRegistry.ts` | Import lines and spread entries removed for every nested `data.ts` found inside the directory (recursive) |
 
 ## What Gets Removed (subdirectory, with --path)
 
@@ -44,7 +46,7 @@ Run from the project root.
 |---|---|
 | `src/filesystem/<parent>/<name>/` | Deleted (entire directory with all contents) |
 | `src/filesystem/<parent>/index.ts` | Import and entry block removed |
-| `src/filesystem/pageRegistry.ts` | Import line and spread entry removed |
+| `src/filesystem/pageRegistry.ts` | Import lines and spread entries removed for every nested `data.ts` found inside the directory (recursive) |
 
 No `.tsx` file is modified.
 
@@ -66,6 +68,7 @@ python tools/remove_directory.py sub --path docs/tools
 ## Notes
 
 - This is a destructive operation — all `.ts` files inside the deleted directory are removed.
+- Registry cleanup is recursive: removing a parent directory also removes all `pageRegistry.ts` entries for any subdirectories it contains. There is no need to remove children bottom-up first.
 - Use `--dry-run` first to preview exactly what will be removed.
 - Missing files are skipped with a `[skip]` notice rather than causing an error.
 - After removing, run `npm run lint` to verify.
