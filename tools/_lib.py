@@ -280,11 +280,13 @@ def update_page_registry(import_path: str, lvar: str, dry_run: bool) -> None:
         print(f"  [updated] src/filesystem/pageRegistry.ts")
 
 
-def remove_from_page_registry(import_path: str, lvar: str, dry_run: bool) -> None:
+def remove_from_page_registry(import_path: str, lvar: str, dry_run: bool,
+                               quiet: bool = False) -> None:
     """Remove an import + spread entry from pageRegistry.ts.
 
     import_path — path relative to src/filesystem/, e.g. './docs/data'
     lvar        — the list variable name, e.g. 'docsList'
+    quiet       — suppress all console output (caller handles messaging)
     """
     path    = FILESYSTEM_DIR / "pageRegistry.ts"
     content = path.read_text()
@@ -292,7 +294,10 @@ def remove_from_page_registry(import_path: str, lvar: str, dry_run: bool) -> Non
     content = content.replace(f"import {lvar} from '{import_path}';\n", "")
     content = content.replace(f"  ...{lvar},\n", "")
 
-    if dry_run:
+    if quiet:
+        if not dry_run:
+            path.write_text(content)
+    elif dry_run:
         print(f"\n--- filesystem/pageRegistry.ts (after removal) ---\n{content}")
     else:
         path.write_text(content)

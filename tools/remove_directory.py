@@ -35,6 +35,31 @@ from _lib import (
 PROTECTED = set()
 
 # ---------------------------------------------------------------------------
+# Recursive registry cleanup
+# ---------------------------------------------------------------------------
+
+def remove_registry_entries_recursive(section: str, content_dir: Path, dry_run: bool) -> None:
+    """Remove every pageRegistry.ts entry for data.ts files found within content_dir.
+
+    Walks the directory tree and removes the import + spread for each data.ts,
+    so nested subdirectories (e.g. docs/tools/data.ts) are cleaned up even when
+    the whole parent directory is removed in a single command.
+    """
+    if not content_dir.is_dir():
+        return
+    for data_file in sorted(content_dir.rglob("data.ts")):
+        rel         = data_file.parent.relative_to(FILESYSTEM_DIR)
+        parts       = list(rel.parts)   # e.g. ['docs', 'tools']
+        sub_parts   = parts[1:]         # segments below the top-level section
+        lvar        = list_var(section, sub_parts)
+        import_path = "./" + "/".join(parts) + "/data"
+        if dry_run:
+            print(f"  [would remove from pageRegistry] {lvar} ({import_path})")
+        else:
+            print(f"  [pageRegistry] removed {lvar} ({import_path})")
+        remove_from_page_registry(import_path, lvar, dry_run, quiet=True)
+
+# ---------------------------------------------------------------------------
 # Top-level removal helpers
 # ---------------------------------------------------------------------------
 
@@ -146,15 +171,10 @@ def main() -> None:
             print(f"ERROR: {content_dir.relative_to(ROOT)} not found.")
             sys.exit(1)
 
-        # Compute lvar/import_path for pageRegistry removal
-        new_sub      = parent_sub + [name]
-        lvar         = list_var(section, new_sub)
-        import_path  = "./" + "/".join(parent_parts + [name]) + "/data"
-
         print(f"\nRemoving subdirectory '{'/'.join(parent_parts)}/{name}'" +
               (" [dry-run]" if args.dry_run else ""))
 
-        remove_from_page_registry(import_path, lvar, args.dry_run)
+        remove_registry_entries_recursive(section, content_dir, args.dry_run)
         remove_subdir_from_parent_index(name, parent_dir, args.dry_run)
 
         n = sum(1 for _ in content_dir.rglob("*"))
@@ -177,14 +197,14 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Top-level mode (original behavior)
     # ------------------------------------------------------------------
-    camel = to_camel(name)
-
     print(f"\nRemoving section '{name}'" + (" [dry-run]" if args.dry_run else ""))
 
+    # Registry cleanup must happen before the directory is deleted so we can
+    # still walk the tree to find all nested data.ts registrations.
+    remove_registry_entries_recursive(name, FILESYSTEM_DIR / name, args.dry_run)
     remove_filesystem_dir(name, args.dry_run)
     remove_section_tsx(name, args.dry_run)
     remove_from_filesystem_index(name, args.dry_run)
-    remove_from_page_registry(f"./{name}/data", f"{camel}List", args.dry_run)
 
     if not args.dry_run:
         print(f"\nDone. Run 'npm run lint' to verify.")
